@@ -8,6 +8,6 @@ if (typeof jQuery === 'undefined') {
 	}
 }
 if(typeof jQuery === 'undefined' || (typeof jQuery.ui === 'undefined')) {
-	document.write('<script type="text/javascript"  src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js"><\/script>');
-	document.write('<link type="text/css" rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/themes/smoothness/jquery-ui.css" />');
+	document.write('<script type="text/javascript"  src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"><\/script>');
+	document.write('<link type="text/css" rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />');
 }
