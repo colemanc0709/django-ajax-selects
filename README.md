@@ -57,7 +57,7 @@ In settings.py :
     # define the lookup channels in use on the site
     AJAX_LOOKUP_CHANNELS = {
         #  simple: search Person.objects.filter(name__icontains=q)
-        'person'  : {'model':'example.person', 'search_field':'name'},
+        'person'  : {'model': 'example.person', 'search_field': 'name'},
         # define a custom lookup channel
         'song'   : ('example.lookups', 'SongLookup')
     }
@@ -173,25 +173,27 @@ Defines the available lookup channels.
 
 #### AJAX_SELECT_BOOTSTRAP
 
-By default it will include bootstrap.js in the widget media in order to locate a jQuery and a jQuery-UI
+By default it will include bootstrap.js in the widget media which will locate or load jQuery and jQuery-UI.
+
+In other words, by default it will just work.
+
+If you don't want it do that, in settings.py:
+    AJAX_SELECT_BOOTSTRAP = False
 
 First one wins:
 
-*  window.jQuery - if you included jQuery on the page
-*  django.jQuery - if you are on an admin page
-*  load from ajax.googleapis com CDN
+*  window.jQuery - if you already included jQuery on the page
+*  or loads: //ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 
 Likewise for jQuery-UI:
 
 * window.jQuery.ui
-* load from ajax.googleapis.com with default smoothness theme
+* or loads: //ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js
+  with theme: //ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/themes/smoothness/jquery-ui.css
 
-If you want your own theme then load it afterwards to override or:
+If you want your own custom theme then load jquery ui and your css first.
 
-    AJAX_SELECT_BOOTSTRAP = False
-
-and load your own jquery, jquery ui and theme.
-
+Warning: the latest jQueryUI seems to have issues with the autocomplete.  I would rather switch to the much nicer select2 than try to get the latest jQuery UI to work.  Its a lot of js and css to load just for a dropdown.
 
 
 urls.py
@@ -316,7 +318,7 @@ ie. what is returned by yourmodel.fieldname_set.all()
 
 In most situations (especially postgres) this order is random, not the order that you originally added them in the interface.  With a bit of hacking I have convinced it to preserve the order [see OrderedManyToMany.md for solution]
 
-######  can_add(self,user,argmodel):
+######  can_add(self, user, argmodel):
 
 Check if the user has permission to add one of these models.
 This enables the green popup +
@@ -335,7 +337,7 @@ Also you could choose to return HttpResponseForbidden("who are you?") instead of
 admin.py
 --------
 
-#### make_ajax_form(model,fieldlist,superclass=ModelForm,show_help_text=False)
+#### make_ajax_form(model, fieldlist, superclass=ModelForm, show_help_text=False)
 
 If your application does not otherwise require a custom Form class then you can use the make_ajax_form helper to create the entire form directly in admin.py.  See forms.py below for cases where you wish to make your own Form.
 
@@ -354,16 +356,16 @@ If your application does not otherwise require a custom Form class then you can 
 
     class YourModelAdmin(AjaxSelectAdmin):
         # create an ajax form class using the factory function
-        #                     model,fieldlist,   [form superclass]
-        form = make_ajax_form(Label,{'owner':'person'})
+        #                     model, fieldlist,   [form superclass]
+        form = make_ajax_form(Label, {'owner': 'person'})
 
     admin.site.register(YourModel,YourModelAdmin)
 
 You may use AjaxSelectAdmin as a mixin class and multiple inherit if you have another Admin class that you would like to use.  You may also just add the hook into your own Admin class:
 
     def get_form(self, request, obj=None, **kwargs):
-        form = super(YourAdminClass,self).get_form(request,obj,**kwargs)
-        autoselect_fields_check_can_add(form,self.model,request.user)
+        form = super(YourAdminClass, self).get_form(request, obj, **kwargs)
+        autoselect_fields_check_can_add(form, self.model, request.user)
         return form
 
 Note that ajax_selects does not need to be in an admin.  Popups will still use an admin view (the registered admin for the model being added), even if the form from where the popup was launched does not.
@@ -374,7 +376,7 @@ forms.py
 
 subclass ModelForm just as usual.  You may add ajax fields using the helper or directly.
 
-#### make_ajax_field(model,model_fieldname,channel,show_help_text = False,**kwargs)
+#### make_ajax_field(model, model_fieldname, channel, show_help_text=False, **kwargs)
 
 A factory function to makes an ajax field + widget.  The helper ensures things are set correctly and simplifies usage and imports thus reducing programmer error.  All kwargs are passed into the Field so it is no less customizable.
 
@@ -402,7 +404,7 @@ A factory function to makes an ajax field + widget.  The helper ensures things a
         class Meta:
             model = Release
 
-        group  = make_ajax_field(Release,'group','group',help_text=None)
+        group  = make_ajax_field(Release, 'group', 'group', help_text=None)
 
 #### Without using the helper
 
@@ -419,7 +421,7 @@ A factory function to makes an ajax field + widget.  The helper ensures things a
 
     class ReleaseForm(ModelForm):
 
-        group = AutoCompleteSelectField('group', required=False, help_text=None,plugin_options = {'autoFocus':True,'minLength':4})
+        group = AutoCompleteSelectField('group', required=False, help_text=None, plugin_options = {'autoFocus': True, 'minLength': 4})
 
 #### Using ajax selects in a `FormSet`
 
@@ -442,7 +444,7 @@ There is possibly a better way to do this, but here is an initial example:
             form.fields["project"] = AutoCompleteSelectField('project', required=False)
 
     # pass in the base formset class to the factory
-    TaskFormSet = modelformset_factory(Task,fields=('name','project','area'),extra=0,formset=BaseTaskFormSet)
+    TaskFormSet = modelformset_factory(Task, fields=('name', 'project', 'area'),extra=0, formset=BaseTaskFormSet)
 
 
 
@@ -537,7 +539,7 @@ Contributors
 
 Many thanks to all who found bugs, asked for things, and hassled me to get a new release out.  I'm glad people find good use out of the app.
 
-In particular thanks for help in the 1.2 version:  sjrd (Sébastien Doeraene), Brian May
+In particular thanks for help in the 1.2 version:  @sjrd (Sébastien Doeraene), @brianmay
 
 
 License
